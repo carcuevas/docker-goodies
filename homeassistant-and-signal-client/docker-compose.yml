@@ -1,0 +1,29 @@
+version: '3'
+services:
+  ha:    
+    container_name: home-assistant
+    image: homeassistant/home-assistant:latest
+    #image: ha_custom:0.6
+    volumes:
+      - /opt/docker/cfg/homeassistant:/config
+      - /etc/localtime:/etc/localtime:ro
+    environment:
+      - TZ=Europe/Prague
+    restart: always
+    network_mode: host
+    depends_on:
+      - signal-api
+    ports:
+      - 8123:8123    
+
+  signal-api:  
+    image: bbernhard/signal-cli-rest-api:latest
+    container_name: signal_api
+    environment:
+      - USE_NATIVE=0
+      #- AUTO_RECEIVE_SCHEDULE=0 22 * * * #enable this parameter on demand (see description below)
+    ports:
+      - "8080:8080" #map docker port 8080 to host port 8080.
+    volumes:
+      - "/opt/docker/cfg/signal-cli-config:/home/.local/share/signal-cli" #map "signal-cli-config" folder on host system into docker container. the folder contains the password and cryptographic keys when a new number is registered
+
